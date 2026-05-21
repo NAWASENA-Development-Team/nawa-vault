@@ -322,8 +322,8 @@ NEXTAUTH_SECRET=dev-secret-key-minimum-32-characters-long
 
 ## ❓ Butuh Bantuan?
 
-- 💬 **Discord** — [discord.gg/nawavault](https://discord.gg/nawavault)
-- 📧 **Email** — dev@nawavault.id
+- 💬 **Discord** — [Coming Soon]()
+- 📧 **Email** — osissmanduajonggol@gmail.com
 - 💡 **GitHub Discussions** — untuk pertanyaan umum dan ide
 
 ---
