@@ -61,7 +61,7 @@ Laporan berikut **tidak** akan diproses:
 
 **1. Email (Direkomendasikan)**
 
-Kirim laporan ke: **security@nawavault.id**
+Kirim laporan ke: **osissmanduajonggol@gmail.com**
 
 Gunakan subjek: `[SECURITY] Deskripsi singkat kerentanan`
 
@@ -69,7 +69,7 @@ Sertakan informasi PGP Public Key kami jika kamu ingin mengenkripsi laporan (ter
 
 **2. Private Security Advisory (GitHub)**
 
-Untuk repositori publik, gunakan fitur [GitHub Private Security Advisory](https://github.com/your-org/nawa-vault/security/advisories/new).
+Untuk repositori publik, gunakan fitur [GitHub Private Security Advisory](https://github.com/NAWASENA-Development-Team/nawa-vault/security/advisories/new).
 
 ---
 
@@ -193,9 +193,9 @@ Untuk transparansi, berikut langkah-langkah keamanan yang telah kami terapkan:
 
 | Keperluan | Kontak |
 |-----------|--------|
-| Laporan keamanan | security@nawavault.id |
-| Pertanyaan umum | hello@nawavault.id |
-| Darurat keamanan | +62-xxx-xxxx-xxxx (tersedia 24/7) |
+| Laporan keamanan | osissmanduajonggol@gmail.com |
+| Pertanyaan umum | ferdi@nawasena.site |
+| Darurat keamanan | +62-822-9923-4269 (tersedia 24/7) |
 
 ---
 
