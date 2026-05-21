@@ -370,7 +370,7 @@ export default function BorrowPage() {
         )}
 
         {/* NOT LOGGED IN — show login/register options */}
-        {!borrowed && !session && authStatus !== "loading" && (
+        {!borrowed && !session && authStatus === "unauthenticated" && (
           <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white shadow-xl shadow-slate-200/60 p-6">
             <div className="text-center mb-6">
               <div className="w-14 h-14 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-3">
