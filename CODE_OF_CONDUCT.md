@@ -56,7 +56,7 @@ Kode Etik ini berlaku di semua **ruang komunitas**, dan juga berlaku ketika sese
 Insiden perilaku yang melecehkan, menyinggung, atau tidak dapat diterima dapat dilaporkan kepada pemimpin komunitas yang bertanggung jawab untuk penegakan melalui:
 
 - 📧 **Email**: osissmanduajonggol@gmail.com
-- 🔒 **Form Rahasia**: [nawavault.id/report](ferdi@nawasena.site)
+- 🔒 **Form Rahasia**: [nawavault.id/report](mailto:ferdi@nawasena.site)
 
 Semua laporan akan **ditinjau dan diselidiki dengan segera dan adil**. Identitas pelapor akan dijaga kerahasiaannya.
 
