@@ -4,12 +4,13 @@ import { loans, assets } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getAppSession } from '@/lib/auth';
 
-export async function PATCH(req: Request, { params }: { params: { loanId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ loanId: string }> }) {
   const session = await getAppSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const loanId = parseInt(params.loanId);
+  const { loanId: loanIdStr } = await params;
+  const loanId = parseInt(loanIdStr);
 
   const [updatedLoan] = await db.update(loans).set({
     status: 'returned',
