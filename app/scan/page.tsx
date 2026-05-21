@@ -92,8 +92,22 @@ export default function ScanPage() {
 
   const handleScan = (decodedText: string) => {
     if (scannedId) return; // Prevent double scan
-    setScannedId(decodedText);
-    processAsset(decodedText);
+    
+    let assetId = decodedText.trim();
+    try {
+      if (assetId.startsWith("http://") || assetId.startsWith("https://")) {
+        const url = new URL(assetId);
+        const segments = url.pathname.split('/').filter(Boolean);
+        if (segments.length > 0) {
+          assetId = segments[segments.length - 1];
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse scanned text as URL", e);
+    }
+
+    setScannedId(assetId);
+    processAsset(assetId);
   };
 
   return (

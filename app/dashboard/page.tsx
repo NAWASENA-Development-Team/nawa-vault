@@ -23,10 +23,12 @@ export default async function DashboardPage() {
 }
 
 async function AdminDashboard({ session }: { session: any }) {
-  const totalAssets = await db.select({ count: sql<number>`count(*)` }).from(assets);
-  const borrowedAssets = await db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.status, 'borrowed'));
-  const overdueLoans = await db.select({ count: sql<number>`count(*)` }).from(loans).where(eq(loans.status, 'overdue'));
-  const availableAssets = await db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.status, 'available'));
+  const [totalAssets, borrowedAssets, overdueLoans, availableAssets] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(assets),
+    db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.status, 'borrowed')),
+    db.select({ count: sql<number>`count(*)` }).from(loans).where(eq(loans.status, 'overdue')),
+    db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.status, 'available'))
+  ]);
 
   const stats = {
     total: totalAssets[0].count,

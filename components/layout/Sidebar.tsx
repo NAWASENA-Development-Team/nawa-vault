@@ -12,6 +12,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 import { Logo } from "@/components/shared/Logo";
 
 interface SidebarProps {
@@ -32,6 +33,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const isAdmin = session?.user && (session.user as any).role === 'admin';
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const [year, setYear] = useState(new Date().getFullYear());
+  useEffect(() => {
+    const updateYear = () => setYear(new Date().getFullYear());
+    const interval = setInterval(updateYear, 60 * 60 * 1000); // update hourly
+    return () => clearInterval(interval);
+  }, []);
 
   const visibleNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
 

@@ -77,8 +77,8 @@ export default function AssetDetailPage({ params }: { params: Promise<{ assetId:
         <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Inventaris
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className={`grid grid-cols-1 ${isAdminOrOperator ? 'lg:grid-cols-3' : ''} gap-6`}>
+        <div className={`${isAdminOrOperator ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-6`}>
           <div className="glass-panel rounded-3xl p-8 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-gradient-to-br from-violet-300/30 to-fuchsia-300/30 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -179,11 +179,13 @@ export default function AssetDetailPage({ params }: { params: Promise<{ assetId:
           </div>
         </div>
 
-        <div>
-          <div className="sticky top-24">
-            <QRLabel assetId={asset.assetId} assetName={asset.name} />
+        {isAdminOrOperator && (
+          <div>
+            <div className="sticky top-24">
+              <QRLabel assetId={asset.assetId} assetName={asset.name} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
