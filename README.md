@@ -122,7 +122,7 @@ Pastikan kamu sudah memiliki:
 
 **1. Clone repositori**
 ```bash
-git clone https://github.com/your-org/nawa-vault.git
+git clone https://github.com/NAWASENA-Development-Team/nawa-vault.git
 cd nawa-vault
 ```
 
@@ -304,7 +304,7 @@ Dibangun dengan ❤️ oleh tim yang percaya bahwa teknologi bisa membuat pendid
 
 <div align="center">
 
-**[Website](https://nawavault.id)** · **[Dokumentasi](https://docs.nawavault.id)** · **[Laporkan Bug](https://github.com/your-org/nawa-vault/issues)** · **[Request Fitur](https://github.com/your-org/nawa-vault/discussions)**
+**[Website](https://nawasena.site)** · **[Dokumentasi](https://nawasena.site)** · **[Laporkan Bug](https://github.com/NAWASENA-Development-Team/nawa-vault/issues)** · **[Request Fitur](https://github.com/NAWASENA-Development-Team/nawa-vault/discussions)**
 
 <br/>
 

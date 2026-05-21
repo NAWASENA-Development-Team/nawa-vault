@@ -55,8 +55,8 @@ Kode Etik ini berlaku di semua **ruang komunitas**, dan juga berlaku ketika sese
 
 Insiden perilaku yang melecehkan, menyinggung, atau tidak dapat diterima dapat dilaporkan kepada pemimpin komunitas yang bertanggung jawab untuk penegakan melalui:
 
-- 📧 **Email**: conduct@nawavault.id
-- 🔒 **Form Rahasia**: [nawavault.id/report](https://nawavault.id/report)
+- 📧 **Email**: osissmanduajonggol@gmail.com
+- 🔒 **Form Rahasia**: [nawavault.id/report](mailto:ferdi@nawasena.site)
 
 Semua laporan akan **ditinjau dan diselidiki dengan segera dan adil**. Identitas pelapor akan dijaga kerahasiaannya.
 
@@ -112,6 +112,6 @@ Panduan Dampak Komunitas terinspirasi dari [tangga penegakan kode etik Mozilla](
 
 *NawaVault percaya bahwa komunitas yang kuat dibangun atas rasa saling menghormati.* 💜
 
-Pertanyaan tentang Kode Etik ini? Hubungi **conduct@nawavault.id**
+Pertanyaan tentang Kode Etik ini? Hubungi **osissmanduajonggol@gmail.com**
 
 </div>
