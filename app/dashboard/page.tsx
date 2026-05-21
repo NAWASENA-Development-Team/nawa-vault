@@ -2,7 +2,7 @@ import { getAppSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { assets, loans } from "@/db/schema";
-import { eq, sql, desc, and } from "drizzle-orm";
+import { eq, sql, desc, and, lt } from "drizzle-orm";
 import { Box, ArrowLeftRight, AlertTriangle, CheckCircle, ScanLine, Plus, Sparkles, TrendingUp, History } from "lucide-react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -151,14 +151,21 @@ async function AdminDashboard({ session }: { session: any }) {
 
 async function MemberDashboard({ session }: { session: any }) {
   // Fetch recent loans for this user
-  const userLoans = await db.query.loans.findMany({
-    where: eq(loans.borrowerName, session.user.name),
-    orderBy: [desc(loans.createdAt)],
-    limit: 5,
-    with: {
-      asset: true
-    }
-  });
+  const userLoans = await db
+    .select({
+      id: loans.id,
+      loanCode: loans.loanCode,
+      status: loans.status,
+      dueDate: loans.dueDate,
+      returnDate: loans.returnDate,
+      assetName: assets.name,
+      assetId: assets.assetId,
+    })
+    .from(loans)
+    .leftJoin(assets, eq(loans.assetId, assets.id))
+    .where(eq(loans.borrowerName, session.user.name))
+    .orderBy(desc(loans.createdAt))
+    .limit(5);
 
   const activeCount = userLoans.filter(l => l.status === 'active').length;
 
@@ -220,11 +227,11 @@ async function MemberDashboard({ session }: { session: any }) {
                 {userLoans.map(loan => (
                   <div key={loan.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                      <p className="font-bold text-slate-800">{loan.asset?.name || 'Aset Tidak Diketahui'}</p>
+                      <p className="font-bold text-slate-800">{loan.assetName || 'Aset Tidak Diketahui'}</p>
                       <p className="text-xs font-medium text-slate-400 mt-1">Kode Pinjam: {loan.loanCode}</p>
                     </div>
                     <div className="mt-3 sm:mt-0 flex flex-col sm:items-end">
-                      <StatusBadge status={loan.status} />
+                      <StatusBadge status={loan.status ?? 'active'} />
                       <p className="text-xs font-medium text-slate-500 mt-2">
                         {loan.status === 'active' ? `Tenggat: ${formatDate(loan.dueDate)}` : `Dikembalikan: ${formatDate(loan.returnDate)}`}
                       </p>
