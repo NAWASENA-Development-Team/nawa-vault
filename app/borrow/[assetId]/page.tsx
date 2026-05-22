@@ -415,7 +415,7 @@ export default function BorrowPage() {
 
         {/* Footer info */}
         <p className="text-center text-xs text-slate-400 mt-6">
-          Sistem Manajemen Aset &copy; {new Date().getFullYear()} NawaVault
+          Sistem Manajemen Aset &copy; 2026 NawaVault
         </p>
       </div>
     </div>

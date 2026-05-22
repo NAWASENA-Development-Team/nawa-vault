@@ -33,8 +33,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const isAdmin = session?.user && (session.user as any).role === 'admin';
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState(2026);
   useEffect(() => {
+    setYear(new Date().getFullYear());
     const updateYear = () => setYear(new Date().getFullYear());
     const interval = setInterval(updateYear, 60 * 60 * 1000); // update hourly
     return () => clearInterval(interval);
@@ -89,7 +90,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <div className="p-4 mt-auto">
         <div className="bg-gradient-to-br from-violet-50 to-orange-50 rounded-xl p-4 border border-white">
           <p className="text-xs font-medium text-slate-500">Sistem Manajemen Aset</p>
-          <p className="text-xs text-slate-400 mt-1">&copy; {new Date().getFullYear()} NawaVault</p>
+          <p className="text-xs text-slate-400 mt-1">&copy; {year} NawaVault</p>
         </div>
       </div>
     </aside>

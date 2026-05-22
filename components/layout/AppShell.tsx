@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
@@ -24,7 +24,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Added pb-24 on mobile to accommodate MobileNav */}
         <main className="lg:ml-[280px] pt-24 pb-28 lg:pb-12 flex-1">
           <div className="px-4 md:px-8 max-w-7xl mx-auto animate-fade-in-up">
-            {children}
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+              </div>
+            }>
+              {children}
+            </Suspense>
           </div>
         </main>
         
