@@ -18,8 +18,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="fixed bottom-[-10%] left-[20%] w-[45vw] h-[45vw] rounded-full bg-indigo-400/20 blur-3xl animate-float-slow mix-blend-multiply pointer-events-none z-0"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar isSidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Suspense fallback={null}>
+          <Navbar isSidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        </Suspense>
         
         {/* Added pb-24 on mobile to accommodate MobileNav */}
         <main className="lg:ml-[280px] pt-24 pb-28 lg:pb-12 flex-1">
@@ -34,7 +38,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </main>
         
-        <MobileNav />
+        <Suspense fallback={null}>
+          <MobileNav />
+        </Suspense>
         
         {sidebarOpen && (
           <div

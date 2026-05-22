@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -60,7 +60,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function BorrowPage() {
+function BorrowContent() {
   const params = useParams();
   const router = useRouter();
   const { data: session, status: authStatus } = useSession();
@@ -419,5 +419,17 @@ export default function BorrowPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function BorrowPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+      </div>
+    }>
+      <BorrowContent />
+    </Suspense>
   );
 }
