@@ -40,6 +40,30 @@ export function QRLabel({ assetId, assetName }: QRLabelProps) {
 
   return (
     <div className="flex flex-col items-center gap-4">
+      {/* Self-contained print media styles to print ONLY the label */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          .print-area, .print-area * {
+            visibility: visible !important;
+          }
+          .print-area {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: 0 !important;
+            margin: 40px auto !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: 256px !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+        }
+      `}} />
+
       {/* Printable label */}
       <div className="print-area flex w-64 flex-col items-center rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         {error ? (
