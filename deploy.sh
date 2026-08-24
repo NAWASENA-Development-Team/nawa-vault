@@ -1,17 +1,30 @@
 #!/bin/bash
 
-echo "🔄 Menghapus artifact lama jika ada..."
-rm -f build.tar.gz
+echo "🔍 Mencari hasil build terakhir yang sukses di GitHub..."
+RUN_ID=$(gh run list --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
 
-echo "☁️  Mendownload hasil build terbaru dari GitHub Actions..."
-# Mengunduh artifact bernama 'vault-build' menggunakan GitHub CLI
-gh run download -n vault-build --dir .
+if [ -z "$RUN_ID" ] || [ "$RUN_ID" == "null" ]; then
+  echo "❌ Tidak ditemukan hasil build yang sukses! Pastikan GitHub Actions sudah selesai (centang hijau) sebelum menjalankan script ini."
+  exit 1
+fi
 
-echo "📦 Mengekstrak file build..."
+echo "☁️  Mendownload hasil build (Run ID: $RUN_ID)..."
+# Bersihkan sisa temp lama
+rm -rf .gh-temp build.tar.gz
+mkdir -p .gh-temp
+
+# Mengunduh langsung menggunakan RUN_ID agar tidak interaktif (stuck)
+gh run download $RUN_ID -n vault-build --dir .gh-temp
+
+echo "📦 Mengekstrak file build (~15MB)..."
+mv .gh-temp/build.tar.gz ./
 tar -xzf build.tar.gz
 
 echo "🧹 Membersihkan file zip..."
-rm build.tar.gz
+rm -rf .gh-temp build.tar.gz
+
+echo "⚡ Menginstal dependencies lokal dengan Bun..."
+bun install
 
 echo "🚀 Merestart aplikasi di PM2..."
 pm2 restart vault-web || pm2 start "bun start -H 0.0.0.0" --name "vault-web"
