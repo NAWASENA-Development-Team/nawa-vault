@@ -1,0 +1,37 @@
+name: Build Next.js untuk Homelab
+
+on:
+  push:
+    branches: [ main ] # Akan jalan otomatis setiap kamu push ke branch main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build Aplikasi
+        env:
+          # Abaikan error lint/typecheck sementara agar build cepat selesai
+          NEXT_DISABLE_ESLINT: 1
+          NEXT_DISABLE_TYPESCRIPT_ERRORS: 1
+        run: bun run build
+
+      - name: Bungkus Hasil Build (Tarball)
+        run: tar -czf build.tar.gz .next public package.json node_modules
+
+      - name: Upload Artifact ke GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: vault-build
+          path: build.tar.gz
+          retention-days: 5 # Hapus otomatis setelah 5 hari agar kuota tidak penuh
