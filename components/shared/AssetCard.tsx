@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { StatusBadge } from "./StatusBadge";
-import { MapPin, Box, ChevronRight } from "lucide-react";
+import { MapPin, Box, ChevronRight, Building2 } from "lucide-react";
 
 export function AssetCard({ asset }: { asset: any }) {
   return (
-    <Link href={`/assets/${asset.assetId}`} className="block group h-full">
+    <Link href={`/assets/${encodeURIComponent(asset.assetId)}`} className="block group h-full">
       <div className="relative h-full bg-white/70 backdrop-blur-xl rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(124,58,237,0.15)] border border-white/60 flex flex-col overflow-hidden">
         
         {/* Glamorous ambient highlight */}
@@ -24,11 +24,23 @@ export function AssetCard({ asset }: { asset: any }) {
         <div className="relative z-10 flex-1">
           <h3 className="text-xl font-black text-slate-800 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-600 group-hover:to-fuchsia-600 transition-all">{asset.name}</h3>
           
-          <div className="mt-3 flex items-center">
+          {/* Asset ID + owner badge */}
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs font-bold text-violet-600 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-md shadow-sm">
               {asset.assetId}
             </span>
+            {(asset.ownerInstance?.code || asset.assetId?.split("/")[1]) && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                <Building2 className="h-2.5 w-2.5" />
+                {asset.ownerInstance?.code ?? asset.assetId?.split("/")[1]}
+              </span>
+            )}
           </div>
+
+          {/* Category breadcrumb */}
+          {asset.category?.name && (
+            <p className="mt-2 text-[11px] text-slate-400 font-medium truncate">{asset.category.name}</p>
+          )}
         </div>
         
         <div className="relative z-10 mt-6 pt-5 border-t border-slate-100/80 flex items-center justify-between text-sm">

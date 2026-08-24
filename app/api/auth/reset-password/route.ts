@@ -3,9 +3,17 @@ import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
+import { getAppSession } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const session = await getAppSession();
+    // Security check: Must have an active session to prevent unauthenticated takeovers
+    // In a real app, this should either verify an email token or require the current password
+    if (!session || (session.user as any).role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden. Contact Administrator.' }, { status: 403 });
+    }
+
     const body = await req.json();
     const { action } = body;
 

@@ -64,18 +64,23 @@ function BorrowContent() {
   const params = useParams();
   const router = useRouter();
   const { data: session, status: authStatus } = useSession();
-  const assetId = params.assetId as string;
+  // Decode URL-encoded assetId (EAS0001%2FTU → EAS0001/TU)
+  const assetId = decodeURIComponent(params.assetId as string);
 
   const [asset, setAsset] = useState<Asset | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [borrowing, setBorrowing] = useState(false);
   const [borrowed, setBorrowed] = useState(false);
+  
+  // New form state
+  const [purpose, setPurpose] = useState("");
+  const [durationDays, setDurationDays] = useState(7);
 
   useEffect(() => {
     async function fetchAsset() {
       try {
-        const res = await fetch(`/api/public/assets/${assetId}`);
+        const res = await fetch(`/api/public/assets/${encodeURIComponent(assetId)}`);
         if (!res.ok) {
           setNotFound(true);
           return;
@@ -93,6 +98,10 @@ function BorrowContent() {
 
   const handleBorrow = async () => {
     if (!asset || borrowing) return;
+    if (!purpose.trim()) {
+      toast.error("Alasan peminjaman wajib diisi");
+      return;
+    }
     setBorrowing(true);
 
     try {
@@ -115,9 +124,9 @@ function BorrowContent() {
             body: JSON.stringify({
               assetId: asset.id,
               borrowerName: session?.user?.name || "Peminjam",
-              purpose: "Peminjaman via QR (eksternal)",
+              purpose: purpose.trim(),
               dueDate: new Date(
-                Date.now() + 7 * 24 * 60 * 60 * 1000
+                Date.now() + durationDays * 24 * 60 * 60 * 1000
               ).toISOString(),
               gpsLocation,
             }),
@@ -325,20 +334,55 @@ function BorrowContent() {
             </div>
 
             {asset.status === "available" ? (
-              <>
-                <p className="text-sm text-slate-500 mb-5 leading-relaxed">
+              <div className="space-y-4">
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Kamu akan meminjam{" "}
                   <span className="font-semibold text-slate-700">
                     {asset.name}
                   </span>
-                  . Durasi peminjaman default adalah{" "}
-                  <span className="font-semibold">7 hari</span>. Lokasi GPS
-                  akan dicatat secara otomatis.
+                  . Lokasi GPS akan dicatat otomatis.
                 </p>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5 ml-0.5">Alasan Peminjaman <span className="text-red-500">*</span></label>
+                  <textarea
+                    required
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    disabled={borrowing}
+                    placeholder="Contoh: Kegiatan UKM, Praktikum, Pameran..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500 transition-all text-sm resize-none"
+                    rows={2}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5 ml-0.5">Durasi Peminjaman</label>
+                  <div className="relative">
+                    <select
+                      value={durationDays}
+                      onChange={(e) => setDurationDays(parseInt(e.target.value))}
+                      disabled={borrowing}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500 transition-all text-sm appearance-none cursor-pointer"
+                    >
+                      <option value={1}>1 Hari</option>
+                      <option value={3}>3 Hari</option>
+                      <option value={7}>1 Minggu (7 Hari)</option>
+                      <option value={14}>2 Minggu (14 Hari)</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2 ml-0.5 leading-relaxed">
+                    Aset dapat dikembalikan kapan saja sebelum durasi habis. Jika lewat durasi, akan tercatat sebagai keterlambatan (overdue).
+                  </p>
+                </div>
+
                 <button
                   onClick={handleBorrow}
-                  disabled={borrowing}
-                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:translate-y-0 flex items-center justify-center gap-2"
+                  disabled={borrowing || !purpose.trim()}
+                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:translate-y-0 flex items-center justify-center gap-2 mt-4"
                 >
                   {borrowing ? (
                     <>
@@ -352,7 +396,7 @@ function BorrowContent() {
                     </>
                   )}
                 </button>
-              </>
+              </div>
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
                 <p className="text-amber-700 font-semibold text-sm">
@@ -391,14 +435,14 @@ function BorrowContent() {
 
             <div className="flex flex-col gap-3">
               <Link
-                href={`/?callbackUrl=/borrow/${assetId}`}
+                href={`/?callbackUrl=/borrow/${encodeURIComponent(assetId)}`}
                 className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm"
               >
-                <LogIn className="w-4 h-4" />
-                Masuk ke NawaVault
+                <LogIn className="w-5 h-5" />
+                Login untuk Meminjam
               </Link>
               <Link
-                href={`/register?callbackUrl=/borrow/${assetId}`}
+                href={`/register?callbackUrl=/borrow/${encodeURIComponent(assetId)}`}
                 className="w-full bg-white border-2 border-violet-200 text-violet-700 font-bold py-3.5 rounded-2xl hover:bg-violet-50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm"
               >
                 <UserPlus className="w-4 h-4" />

@@ -32,7 +32,16 @@ function LoginForm() {
       if (res?.error) {
         setError("Email atau password salah");
       } else {
-        router.push(callbackUrl);
+        let finalUrl = callbackUrl;
+        // Fix untuk assetId yang mengandung slash (contoh: EAS0001/TU) yang ter-decode otomatis oleh searchParams
+        if (finalUrl.startsWith("/borrow/")) {
+          const parts = finalUrl.split("/");
+          if (parts.length > 3) {
+            const assetId = parts.slice(2).join("/"); // Gabungkan sisa ID
+            finalUrl = `/borrow/${encodeURIComponent(assetId)}`;
+          }
+        }
+        router.push(finalUrl);
       }
     } catch (err) {
       setError("Terjadi kesalahan sistem");

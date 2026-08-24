@@ -1,18 +1,22 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { QRLabel } from "@/components/shared/QRLabel";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Hash, Edit3, Save, X, Navigation, RefreshCcw, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Hash, Edit3, Save, X, Navigation, RefreshCcw, Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function AssetDetailPage({ params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = React.use(params);
+  const router = useRouter();
   const { data: session } = useSession();
   const [asset, setAsset] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({ condition: '', status: '' });
 
   useEffect(() => {
@@ -50,13 +54,37 @@ export default function AssetDetailPage({ params }: { params: Promise<{ assetId:
         const json = await res.json();
         setAsset(json.data);
         setEditing(false);
+        toast.success("Aset berhasil diperbarui");
       }
     } catch (error) {
       console.error("Failed to update asset", error);
+      toast.error("Gagal memperbarui aset");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Yakin ingin menghapus aset ini secara permanen? Tindakan ini tidak bisa dibatalkan.")) return;
+    
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/assets/${assetId}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success("Aset berhasil dihapus");
+        router.push("/assets");
+      } else {
+        const json = await res.json();
+        toast.error(json.error || "Gagal menghapus aset");
+        setIsDeleting(false);
+      }
+    } catch (error) {
+      console.error("Failed to delete asset", error);
+      toast.error("Terjadi kesalahan sistem");
+      setIsDeleting(false);
     }
   };
 
   const isAdminOrOperator = session?.user && (session.user as any).role !== 'member';
+  const isAdmin = session?.user && (session.user as any).role === 'admin';
 
   if (loading && !asset) return (
     <div className="flex flex-col items-center justify-center py-32">
@@ -92,6 +120,17 @@ export default function AssetDetailPage({ params }: { params: Promise<{ assetId:
                   <StatusBadge status={asset.status} />
                 </div>
               </div>
+              
+              {isAdmin && (
+                <button 
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-white border-2 border-rose-100 text-rose-600 hover:bg-rose-50 hover:border-rose-200 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm"
+                >
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  Hapus Aset
+                </button>
+              )}
             </div>
             
             <div className="mt-8 space-y-6 relative z-10">

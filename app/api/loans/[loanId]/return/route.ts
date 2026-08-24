@@ -15,12 +15,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ loanId
   const [updatedLoan] = await db.update(loans).set({
     status: 'returned',
     returnDate: new Date(),
-    returnCondition: body.returnCondition,
+    returnCondition: body.returnCondition || 'good',
     notes: body.notes
   }).where(eq(loans.id, loanId)).returning();
 
+  if (!updatedLoan) {
+    return NextResponse.json({ error: 'Loan not found or already returned' }, { status: 404 });
+  }
+
   const newAssetStatus = body.returnCondition === 'damaged' ? 'maintenance' : 'available';
-  await db.update(assets).set({ status: newAssetStatus, condition: body.returnCondition })
+  
+  const asset = await db.query.assets.findFirst({ where: eq(assets.id, updatedLoan.assetId!) });
+
+  await db.update(assets).set({ 
+    status: newAssetStatus, 
+    condition: body.returnCondition || asset?.condition || 'good',
+    location: asset?.baseLocation || 'Sekretariat'
+  })
     .where(eq(assets.id, updatedLoan.assetId!));
 
   return NextResponse.json({ data: updatedLoan, message: 'Asset returned successfully' });

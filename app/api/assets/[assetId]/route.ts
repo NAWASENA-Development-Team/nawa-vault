@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { assets } from '@/db/schema';
+import { assets, ownerInstances } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getAppSession } from '@/lib/auth';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic'; // Prevent stale caching of asset status
 
 export async function GET(
   req: Request,
@@ -12,14 +15,24 @@ export async function GET(
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { assetId } = await params;
+  const decoded = decodeURIComponent(assetId);
 
-  const [asset] = await db.select().from(assets).where(eq(assets.assetId, assetId));
+  const result = await db.query.assets.findFirst({
+    where: eq(assets.assetId, decoded),
+    with: {
+      category: true,
+      ownerInstance: true,
+    },
+  });
 
-  if (!asset) {
+  if (!result) {
     return NextResponse.json({ error: 'Aset tidak ditemukan' }, { status: 404 });
   }
 
-  return NextResponse.json({ data: asset });
+  return NextResponse.json(
+    { data: result },
+    { headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' } }
+  );
 }
 
 export async function PUT(
@@ -35,9 +48,12 @@ export async function PUT(
   }
 
   const { assetId } = await params;
+  const decoded = decodeURIComponent(assetId);
   const body = await req.json();
 
-  const [existing] = await db.select().from(assets).where(eq(assets.assetId, assetId));
+  const existing = await db.query.assets.findFirst({
+    where: eq(assets.assetId, decoded),
+  });
   if (!existing) {
     return NextResponse.json({ error: 'Aset tidak ditemukan' }, { status: 404 });
   }
@@ -45,14 +61,15 @@ export async function PUT(
   const [updatedAsset] = await db
     .update(assets)
     .set({
-      name: body.name,
-      description: body.description,
-      condition: body.condition,
-      location: body.location,
-      status: body.status,
+      name: body.name ?? existing.name,
+      description: body.description ?? existing.description,
+      condition: body.condition ?? existing.condition,
+      location: body.location ?? existing.location,
+      status: body.status ?? existing.status,
+      quantity: body.quantity ?? existing.quantity,
       updatedAt: new Date(),
     })
-    .where(eq(assets.assetId, assetId))
+    .where(eq(assets.assetId, decoded))
     .returning();
 
   return NextResponse.json({ data: updatedAsset, message: 'Aset berhasil diperbarui' });
@@ -71,13 +88,16 @@ export async function DELETE(
   }
 
   const { assetId } = await params;
+  const decoded = decodeURIComponent(assetId);
 
-  const [existing] = await db.select().from(assets).where(eq(assets.assetId, assetId));
+  const existing = await db.query.assets.findFirst({
+    where: eq(assets.assetId, decoded),
+  });
   if (!existing) {
     return NextResponse.json({ error: 'Aset tidak ditemukan' }, { status: 404 });
   }
 
-  await db.delete(assets).where(eq(assets.assetId, assetId));
+  await db.delete(assets).where(eq(assets.assetId, decoded));
 
   return NextResponse.json({ message: 'Aset berhasil dihapus' });
 }

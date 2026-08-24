@@ -21,21 +21,40 @@ export async function POST(req: Request) {
   const body = await req.json();
   const loanCode = getLoanCode();
   
-  const [newLoan] = await db.insert(loans).values({
-    loanCode,
-    assetId: body.assetId,
-    borrowerName: body.borrowerName,
-    borrowerClass: body.borrowerClass,
-    borrowerContact: body.borrowerContact,
-    operatorId: parseInt((session.user as any).id),
-    purpose: body.purpose,
-    dueDate: new Date(body.dueDate)
-  }).returning();
+  try {
+    const newLoan = await db.transaction(async (tx) => {
+      // 1. Cek apakah aset ada dan berstatus 'available'
+      const [asset] = await tx.select().from(assets).where(eq(assets.id, body.assetId));
+      if (!asset) {
+        throw new Error('Aset tidak ditemukan');
+      }
+      if (asset.status !== 'available') {
+        throw new Error(`Aset tidak tersedia (Status: ${asset.status})`);
+      }
 
-  await db.update(assets).set({ 
-    status: 'borrowed',
-    location: body.gpsLocation || 'Lokasi Peminjam' 
-  }).where(eq(assets.id, body.assetId));
+      // 2. Buat Peminjaman
+      const [insertedLoan] = await tx.insert(loans).values({
+        loanCode,
+        assetId: body.assetId,
+        borrowerName: body.borrowerName,
+        borrowerClass: body.borrowerClass,
+        borrowerContact: body.borrowerContact,
+        operatorId: parseInt((session.user as any).id),
+        purpose: body.purpose,
+        dueDate: new Date(body.dueDate)
+      }).returning();
 
-  return NextResponse.json({ data: newLoan, message: 'Loan processed' }, { status: 201 });
+      // 3. Update status aset
+      await tx.update(assets).set({ 
+        status: 'borrowed',
+        location: body.gpsLocation || 'Lokasi Peminjam' 
+      }).where(eq(assets.id, body.assetId));
+
+      return insertedLoan;
+    });
+
+    return NextResponse.json({ data: newLoan, message: 'Loan processed' }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
 }
